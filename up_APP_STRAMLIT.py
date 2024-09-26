@@ -37,7 +37,7 @@ def prediction (lt,mst,spcl,price,adult,wkend,park,wk,ar_d,ar_m,ar_w):
         input_list=[[lt,mst,spcl,price,adult,wkend,park,wk,ar_d,ar_m,ar_w]]
 
     if st.button('Predict'):
-        responce=prediction(input_data)
+        responce=prediction(input_list)
         st.success(responce)
 
 
