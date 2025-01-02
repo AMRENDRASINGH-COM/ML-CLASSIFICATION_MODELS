@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pickle
 
-with open ('final_model_gradient.pkl','rb') as file:
+with open ('final_model_gradient.pkl','r') as file:
     model=pickle.load(file)
 
 
