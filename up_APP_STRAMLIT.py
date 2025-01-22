@@ -3,8 +3,9 @@ import numpy as np
 import pandas as pd
 import pickle
 
-with open ('final_model_gradient.pkl','r') as file:
-    model=pickle.load(file)
+# Open the pickle file in binary mode
+with open('final_model_gradient.pkl', 'rb') as file:
+    model = pickle.load(file)
 
 
 def prediction (lt,mst,spcl,price,adult,wkend,park,wk,ar_d,ar_m,ar_w):
