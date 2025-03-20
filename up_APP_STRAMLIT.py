@@ -4,12 +4,11 @@ import numpy as np
 from PIL import Image
 
 # Load the trained model
-model = None  # Initialize model as None
 try:
     with open("final_model_gradient.pkl", 'rb') as file:
         model = pickle.load(file)
 except Exception as e:
-    st.error(f"Error loading model: {e}. Please ensure the model file exists and is compatible.")
+    st.error(f"Error loading model: {e}.")
 
 # Prediction function
 def prediction(input_data):
