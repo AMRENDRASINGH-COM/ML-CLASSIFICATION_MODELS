@@ -1,18 +1,20 @@
 import streamlit as st
 import pickle 
 import numpy as np
-import pandas as pd
 from PIL import Image
 
 # Load the trained model
+model = None  # Initialize model as None
 try:
     with open("final_model_gradient.pkl", 'rb') as file:
         model = pickle.load(file)
 except Exception as e:
-    st.error(f"Error loading model: {e}")
+    st.error(f"Error loading model: {e}. Please ensure the model file exists and is compatible.")
 
 # Prediction function
 def prediction(input_data):
+    if model is None:
+        return "Model not loaded. Cannot make predictions."
     try:
         # Ensure input_data is a 2D array
         input_data = np.array(input_data).reshape(1, -1)
@@ -63,8 +65,11 @@ def main():
 
     # Predict and display the result
     if st.button("Predict"):
-        response = prediction(input_data)
-        st.success(response)
+        if model is None:
+            st.error("Model is not loaded. Cannot make predictions.")
+        else:
+            response = prediction(input_data)
+            st.success(response)
 
 if __name__ == '__main__':
     main()
