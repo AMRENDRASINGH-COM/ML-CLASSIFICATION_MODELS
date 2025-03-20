@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 from PIL import Image
 
+# Load the trained model
 try:
     with open("final_model_gradient.pkl", 'rb') as file:
         model = pickle.load(file)
@@ -32,11 +33,11 @@ def main():
     try:
         # Load the image directly (since it's in the same directory)
         image = Image.open("hotel image inn.jpg")
-        st.image(image, use_column_width=True)
+        st.image(image, use_container_width=True)  # Updated parameter
     except FileNotFoundError:
         st.warning("Hotel image not found. Using a placeholder image.")
         image_url = "https://via.placeholder.com/600x400.png?text=Hotel+Image"
-        st.image(image_url, use_column_width=True)
+        st.image(image_url, use_container_width=True)  # Updated parameter
     except Exception as e:
         st.error(f"An error occurred while loading the image: {e}")
 
