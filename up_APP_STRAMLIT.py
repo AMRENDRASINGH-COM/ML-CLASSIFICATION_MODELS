@@ -1,25 +1,26 @@
 import streamlit as st
+import pickle 
 import numpy as np
-import pickle
 from PIL import Image
 
-# Load the trained model (using your method)
 try:
-    with open('final_model_gradient.pkl', 'rb') as file:  # Use 'rb' mode for binary files
+    with open("final_model_gradient.pkl", 'rb') as file:
         model = pickle.load(file)
 except Exception as e:
     st.error(f"Error loading model: {e}. Please ensure the model file exists and is compatible.")
 
 # Prediction function
 def prediction(input_data):
+    if model is None:
+        return "Model not loaded. Cannot make predictions."
     try:
         # Ensure input_data is a 2D array
         input_data = np.array(input_data).reshape(1, -1)
         pred = model.predict_proba(input_data)[:, 1][0]
         if pred > 0.5:
-            return f"This booking is more likely to get canceled: Probability = {round(pred * 100, 2)}%"
+            return f"This booking is more likely to get canceled: Chances = {round(pred*100, 2)}%"
         else:
-            return f"This booking is less likely to get canceled: Probability = {round(pred * 100, 2)}%"
+            return f"This booking is less likely to get canceled: Chances = {round(pred*100, 2)}%"
     except Exception as e:
         return f"Error during prediction: {e}"
 
@@ -29,7 +30,8 @@ def main():
 
     # Display hotel image (with error handling)
     try:
-        image = Image.open("hotel_image_inn.jpg")  # Ensure the image file is in the same directory
+        # Load the image directly (since it's in the same directory)
+        image = Image.open("hotel image inn.jpg")
         st.image(image, use_column_width=True)
     except FileNotFoundError:
         st.warning("Hotel image not found. Using a placeholder image.")
@@ -64,7 +66,7 @@ def main():
 
     # Predict and display the result
     if st.button("Predict"):
-        if 'model' not in globals():
+        if model is None:
             st.error("Model is not loaded. Cannot make predictions.")
         else:
             response = prediction(input_data)
