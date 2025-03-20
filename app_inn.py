@@ -1,5 +1,5 @@
 import streamlit as st
-import pickle 
+import joblib  # Use joblib instead of pickle
 import numpy as np
 from PIL import Image
 
@@ -8,8 +8,7 @@ model = None
 
 # Load the trained model
 try:
-    with open("final_model_gradient.pkl", 'rb') as file:
-        model = pickle.load(file)
+    model = joblib.load("final_model_gradient.pkl")
 except Exception as e:
     st.error(f"Error loading model: {e}. Please ensure the model file exists and is compatible.")
 
@@ -34,7 +33,6 @@ def main():
 
     # Display hotel image (with error handling)
     try:
-        # Load the image directly (since it's in the same directory)
         image = Image.open("hotel image inn.jpg")
         st.image(image, use_column_width=True)
     except FileNotFoundError:
