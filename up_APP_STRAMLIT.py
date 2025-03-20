@@ -6,7 +6,7 @@ from PIL import Image
 
 # Load the trained model
 try:
-    with open("final_model_xgb.pkl", 'rb') as file:
+    with open("final_model_gradient.pkl", 'rb') as file:
         model = pickle.load(file)
 except Exception as e:
     st.error(f"Error loading model: {e}")
