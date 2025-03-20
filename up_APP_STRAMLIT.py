@@ -31,24 +31,22 @@ def main():
     st.image(image, use_container_width=True)
 
     # User inputs
-    st.title('INN HOTEL')
-        lt=st.text_input('ENTER LEAD TIME')
-        market={'online':1,'offline':0}
-        spcl=st.selectbox('HOW MANY SPECIAL REQUESTS HAVE BEEN MADE ?',[0,1,2,3,4,5])
-        price=st.text_input('ENTER THE PRICE OF ROOM')
-        adults=st.selectbox('HOW MANY ADULTS PER ROOM?',[1,2,3,4])
-        wknd=st.text_input('HOW MANY WEEKEND NIGHTS?')
-        prk=(lambda x:1 if x=='Yes' else 0)(st.selectbox['DOES BOOKING INCLUDE PARKING FARE'])
-        arr_d=st.slider('WHAT WILL BE DAY OF ARRIVAL',min_value=1,max_value=31,step=1)
-        arr_m=st.slider('WHAT WILL BE MONTH OF ARRIVAL',min_value=1,max_value=12,step=1)
-        wwekd_lambda=(lambda x:0 if x=='Mon' else 1 if x=='Tue' else 2 if x=='Wed' else 3 if x=='Thu' else 4 if x=='Fri' else 5 if x=='Sat' else 6) 
-        arr_wd=wwekd_lambda(st.selectbox('WHAT IS THE WEEKDAY OF ARRIVAL?',['Mon','Tue','Wed','Thu','Fri','Sat']))
-
+    st.header('Booking Details')
+    lead_time = st.text_input('ENTER LEAD TIME')
+    market_segment_type = st.selectbox('SELECT MARKET SEGMENT', ['online', 'offline'])
+    no_of_special_requests = st.selectbox('HOW MANY SPECIAL REQUESTS HAVE BEEN MADE?', [0, 1, 2, 3, 4, 5])
+    avg_price_per_room = st.text_input('ENTER THE PRICE OF ROOM')
+    no_of_adults = st.selectbox('HOW MANY ADULTS PER ROOM?', [1, 2, 3, 4])
+    no_of_weekend_nights = st.text_input('HOW MANY WEEKEND NIGHTS?')
+    required_car_parking_space = (lambda x: 1 if x == 'Yes' else 0)(st.selectbox('DOES BOOKING INCLUDE PARKING FARE?', ['Yes', 'No']))
+    arrival_day = st.slider('WHAT WILL BE DAY OF ARRIVAL', min_value=1, max_value=31, step=1)
+    arrival_month = st.slider('WHAT WILL BE MONTH OF ARRIVAL', min_value=1, max_value=12, step=1)
+    arrival_weekday = (lambda x: 0 if x == 'Mon' else 1 if x == 'Tue' else 2 if x == 'Wed' else 3 if x == 'Thu' else 4 if x == 'Fri' else 5 if x == 'Sat' else 6)(st.selectbox('WHAT IS THE WEEKDAY OF ARRIVAL?', ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']))
 
     # Preparing input data for prediction
     input_data = [[lead_time, market_segment_type, no_of_special_requests,
                    avg_price_per_room, no_of_adults, no_of_weekend_nights,
-                   required_car_parking_space, no_of_week_nights, arrival_day,
+                   required_car_parking_space, 0, arrival_day,
                    arrival_month, arrival_weekday]]
 
     # Predict and display the result
@@ -58,4 +56,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
