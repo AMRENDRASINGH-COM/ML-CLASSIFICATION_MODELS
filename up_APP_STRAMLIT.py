@@ -28,9 +28,14 @@ def prediction(input_data):
 def main():
     st.title("INN Hotels - Cancellation Prediction")
 
-    # Display hotel image
-    image = Image.open("hotel image inn.jpeg")
-    st.image(image, use_container_width=True)
+    # Display hotel image (with error handling)
+    try:
+        image = Image.open("hotel image inn.jpeg")
+        st.image(image, use_container_width=True)
+    except FileNotFoundError:
+        st.warning("Hotel image not found. Using a placeholder image.")
+        image_url = "https://via.placeholder.com/600x400.png?text=Hotel+Image"
+        st.image(image_url, use_container_width=True)
 
     # User inputs
     st.header('Booking Details')
