@@ -1,87 +1,58 @@
-import streamlit as st
-import pickle 
+import gradio as gr
+import joblib  # Use joblib instead of pickle
 import numpy as np
-from PIL import Image
+from warnings import filterwarnings
+
+filterwarnings('ignore')
 
 # Load the trained model
 try:
-    with open("final_model_gradient.pkl", 'rb') as file:
-        model = pickle.load(file)
+    model = joblib.load("final_model_gradient.pkl")
 except Exception as e:
-    st.error(f"Error loading model: {e}. Please ensure the model file exists and is compatible.")
-    model = None  # Ensure model is defined even if loading fails
+    print(f"Error loading model: {e}. Please ensure the model file exists and is compatible.")
+    model = None
+
+# Check if the model has the required attribute
+if model is not None and hasattr(model, 'feature_names_in_'):
+    print("Model loaded successfully. Feature names:", model.feature_names_in_)
+else:
+    print("Model is not loaded or does not have the required attributes.")
 
 # Prediction function
-def prediction(input_data):
+def prediction(lt, mst, spcl, price, adult, wkend, park, wk, ar_d, ar_m, ar_w):
     if model is None:
         return "Model not loaded. Cannot make predictions."
     try:
-        # Ensure input_data is a 2D array
-        input_data = np.array(input_data).reshape(1, -1)
-        
-        # Check if the model is a regression model (XGBRegressor)
-        if hasattr(model, 'predict_proba'):
-            # For classification models (e.g., XGBClassifier)
-            pred = model.predict_proba(input_data)[:, 1][0]
-        else:
-            # For regression models (e.g., XGBRegressor)
-            pred = model.predict(input_data)[0]
-        
-        # Interpret the prediction
+        input_data = [[lt, mst, spcl, price, adult, wkend, park, wk, ar_d, ar_m, ar_w]]
+        pred = model.predict_proba(input_data)[:, 1][0]
         if pred > 0.5:
-            return f"This booking is more likely to get canceled: Chances = {round(pred*100, 2)}%"
+            return f"THIS BOOKING IS MORE LIKELY TO GET CANCELED: PROBABILITY={round(pred * 100, 2)}%"
         else:
-            return f"This booking is less likely to get canceled: Chances = {round(pred*100, 2)}%"
+            return f"THIS BOOKING IS LESS LIKELY TO GET CANCELED: PROBABILITY={round(pred * 100, 2)}%"
     except Exception as e:
         return f"Error during prediction: {e}"
 
-# Main app
-def main():
-    st.title("INN Hotels - Cancellation Prediction")
+# Gradio interface
+iface = gr.Interface(
+    fn=prediction,
+    inputs=[
+        gr.Number(label='HOW MANY PRIOR DAYS BOOKING WAS MADE'),
+        gr.Dropdown([('Online', 1), ('Offline', 0)], label='HOW THE BOOKING WAS MADE'),
+        gr.Dropdown([0, 1, 2, 3, 4, 5], label='HOW MANY SPECIAL REQUEST MADE'),
+        gr.Number(label='WHAT IS THE PRICE PER ROOM OFFERED'),
+        gr.Dropdown([1, 2, 3, 4], label='How Many ADULTS PER ROOM'),
+        gr.Number(label='HOW MANY WEEKEND NIGHTS IN THE STAY'),
+        gr.Dropdown([('YES', 1), ('NO', 0)], label='DOES BOOKING INCLUDES PARKING FACILITY'),
+        gr.Number(label='HOW MANY WEEK NIGHTS IN STAY'),
+        gr.Slider(minimum=1, maximum=31, step=1, label='WHAT IS DAY OF ARRIVAL'),
+        gr.Slider(minimum=1, maximum=12, step=1, label='WHAT IS MONTH OF ARRIVAL'),
+        gr.Dropdown([('Mon', 0), ('Tue', 1), ('Wed', 2), ('Thu', 3), ('Fri', 4), ('Sat', 5), ('Sun', 6)], label='WHAT IS THE WEEKDAY OF ARRIVAL')
+    ],
+    outputs=gr.Textbox(label='Prediction'),
+    title='INN Group of Hotels',
+    description='This application will forecast the cancellation of booking',
+    allow_flagging='never'
+)
 
-    # Display hotel image (with error handling)
-    try:
-        # Load the image directly (since it's in the same directory)
-        image = Image.open("hotel image inn.jpg")
-        st.image(image, use_container_width=True)
-    except FileNotFoundError:
-        st.warning("Hotel image not found. Using a placeholder image.")
-        image_url = "https://via.placeholder.com/600x400.png?text=Hotel+Image"
-        st.image(image_url, use_container_width=True)
-    except Exception as e:
-        st.error(f"An error occurred while loading the image: {e}")
-
-    # User inputs
-    st.header('Booking Details')
-    lead_time = st.number_input('ENTER LEAD TIME', min_value=0, step=1)
-    market_segment_type = st.selectbox('SELECT MARKET SEGMENT', ['online', 'offline'])
-    no_of_special_requests = st.selectbox('HOW MANY SPECIAL REQUESTS HAVE BEEN MADE?', [0, 1, 2, 3, 4, 5])
-    avg_price_per_room = st.number_input('ENTER THE PRICE OF ROOM', min_value=0.0, step=0.1)
-    no_of_adults = st.selectbox('HOW MANY ADULTS PER ROOM?', [1, 2, 3, 4])
-    no_of_weekend_nights = st.number_input('HOW MANY WEEKEND NIGHTS?', min_value=0, step=1)
-    required_car_parking_space = st.selectbox('DOES BOOKING INCLUDE PARKING FARE?', ['Yes', 'No'])
-    arrival_day = st.slider('WHAT WILL BE DAY OF ARRIVAL', min_value=1, max_value=31, step=1)
-    arrival_month = st.slider('WHAT WILL BE MONTH OF ARRIVAL', min_value=1, max_value=12, step=1)
-    arrival_weekday = st.selectbox('WHAT IS THE WEEKDAY OF ARRIVAL?', ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
-
-    # Convert categorical inputs to numeric
-    market_segment_type = 1 if market_segment_type == 'online' else 0
-    required_car_parking_space = 1 if required_car_parking_space == 'Yes' else 0
-    arrival_weekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].index(arrival_weekday)
-
-    # Preparing input data for prediction
-    input_data = [lead_time, market_segment_type, no_of_special_requests,
-                  avg_price_per_room, no_of_adults, no_of_weekend_nights,
-                  required_car_parking_space, 0, arrival_day,
-                  arrival_month, arrival_weekday]
-
-    # Predict and display the result
-    if st.button("Predict"):
-        if model is None:
-            st.error("Model is not loaded. Cannot make predictions.")
-        else:
-            response = prediction(input_data)
-            st.success(response)
-
-if __name__ == '__main__':
-    main()
+# Launch the interface
+iface.launch()
