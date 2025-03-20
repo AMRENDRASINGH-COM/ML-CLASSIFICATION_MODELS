@@ -18,7 +18,16 @@ def prediction(input_data):
     try:
         # Ensure input_data is a 2D array
         input_data = np.array(input_data).reshape(1, -1)
-        pred = model.predict_proba(input_data)[:, 1][0]
+        
+        # Check if the model is a regression model (XGBRegressor)
+        if hasattr(model, 'predict_proba'):
+            # For classification models (e.g., XGBClassifier)
+            pred = model.predict_proba(input_data)[:, 1][0]
+        else:
+            # For regression models (e.g., XGBRegressor)
+            pred = model.predict(input_data)[0]
+        
+        # Interpret the prediction
         if pred > 0.5:
             return f"This booking is more likely to get canceled: Chances = {round(pred*100, 2)}%"
         else:
