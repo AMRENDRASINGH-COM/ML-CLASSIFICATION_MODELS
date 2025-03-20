@@ -3,12 +3,15 @@ import pickle
 import numpy as np
 from PIL import Image
 
+# Initialize model as None
+model = None
+
 # Load the trained model
 try:
     with open("final_model_gradient.pkl", 'rb') as file:
         model = pickle.load(file)
 except Exception as e:
-    st.error(f"Error loading model: {e}.")
+    st.error(f"Error loading model: {e}. Please ensure the model file exists and is compatible.")
 
 # Prediction function
 def prediction(input_data):
@@ -31,12 +34,15 @@ def main():
 
     # Display hotel image (with error handling)
     try:
-        image = Image.open("hotel image inn.jpeg")
-        st.image(image, use_container_width=True)
+        # Load the image directly (since it's in the same directory)
+        image = Image.open("hotel image inn.jpg")
+        st.image(image, use_column_width=True)
     except FileNotFoundError:
         st.warning("Hotel image not found. Using a placeholder image.")
         image_url = "https://via.placeholder.com/600x400.png?text=Hotel+Image"
-        st.image(image_url, use_container_width=True)
+        st.image(image_url, use_column_width=True)
+    except Exception as e:
+        st.error(f"An error occurred while loading the image: {e}")
 
     # User inputs
     st.header('Booking Details')
