@@ -9,6 +9,7 @@ try:
         model = pickle.load(file)
 except Exception as e:
     st.error(f"Error loading model: {e}. Please ensure the model file exists and is compatible.")
+    model = None  # Ensure model is defined even if loading fails
 
 # Prediction function
 def prediction(input_data):
@@ -33,11 +34,11 @@ def main():
     try:
         # Load the image directly (since it's in the same directory)
         image = Image.open("hotel image inn.jpg")
-        st.image(image, use_container_width=True)  # Updated parameter
+        st.image(image, use_container_width=True)
     except FileNotFoundError:
         st.warning("Hotel image not found. Using a placeholder image.")
         image_url = "https://via.placeholder.com/600x400.png?text=Hotel+Image"
-        st.image(image_url, use_container_width=True)  # Updated parameter
+        st.image(image_url, use_container_width=True)
     except Exception as e:
         st.error(f"An error occurred while loading the image: {e}")
 
